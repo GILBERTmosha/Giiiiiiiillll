@@ -137,24 +137,16 @@ function resetForm(){
 function createMsg(d){
 return `👋 Habari ${d.jina} 😊
 
-🌐 *Karibu MOSHARUTH WiFi* ⚡
-📶 Intaneti ya kasi • Imara • Uhakika
+🌐 *MOSHARUTH WiFi* ⚡
+📶 WiFi: ${WIFI_NAME} | 🔐 Password: ${WIFI_PASSWORD}
 
-📡 WiFi: ${WIFI_NAME}
-🔐 Password: ${WIFI_PASSWORD}
+💳 Kiasi: Tsh ${Number(d.kiasi).toLocaleString()} ✅
 
-💳 Malipo yamethibitishwa ✅
-💰 Kiasi: Tsh ${Number(d.kiasi).toLocaleString()}
-    
-    📞 *Mawasiliano*
-☎️ Simu: 0793770731
+📞 Simu: 0793770731
 💬 WhatsApp: https://wa.me/255793770731
 
-
-🚀 Furahia intaneti bila mipaka
-🙏 Asante kwa kutuchagua 💚`;
+🚀 Furahia intaneti bila mipaka 💚`;
 }
-
 // EDIT MESSAGE
 function editMsg(i){
     currentIndex=i;
