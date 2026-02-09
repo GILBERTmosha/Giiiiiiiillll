@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOSHARUTH WiFi System</title>
+
+<style>
+body{
+    font-family:'Segoe UI',sans-serif;
+    background:#0f172a;
+    color:#f8fafc;
+    margin:0;
+    padding:10px;
+}
+.container{
+    max-width:500px;
+    margin:auto;
+    background:#1e293b;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+.hidden{display:none}
+
+.menu{
+    display:flex;
+    justify-content:space-around;
+    margin-bottom:20px;
+    border-bottom:2px solid #334155;
+}
+.menu button{
+    background:none;
+    border:none;
+    color:#94a3b8;
+    padding:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.menu button.active{
+    color:#22d3ee;
+    border-bottom:3px solid #22d3ee;
+}
+
+input,textarea{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:10px;
+    border:1px solid #334155;
+    background:#0f172a;
+    color:white;
+}
+.btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:5px;
+}
+.btn-save{background:#10b981;color:white}
+.btn-update{background:#f59e0b;color:white}
+.btn-backup{background:#6366f1;color:white}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    font-size:13px;
+}
+th,td{
+    padding:10px;
+    border-bottom:1px solid #334155;
+}
+.total-box{
+    background:#064e3b;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    margin-top:15px;
+    font-size:20px;
+    color:#34d399;
+    font-weight:bold;
+}
+.action-btn{
+    background:none;
+    border:none;
+    font-size:18px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- LOGIN -->
+<div id="login-section">
+    <h2 style="text-align:center">📡 MOSHARUTH SYSTEM</h2>
+    <input type="password" id="secretCode" placeholder="Ingiza Password">
+    <button class="btn btn-save" onclick="checkCode()">FUNGUA</button>
+</div>
+
+<!-- MAIN -->
+<div id="main-content" class="hidden">
+
+<div class="menu">
+    <button onclick="showTab('calc')" class="active">CALC</button>
+    <button onclick="showTab('entry')">SAJILI</button>
+    <button onclick="showTab('list')">LISTI</button>
+    <button onclick="showTab('backup')">SIRI</button>
+</div>
+
+<!-- CALC -->
+<div id="calc-section">
+    <input id="display" readonly style="text-align:right;font-size:26px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <button class="btn" onclick="clearCalc()" style="background:#ef4444">C</button>
+        <button class="btn" onclick="press('/')">/</button>
+        <button class="btn" onclick="press('*')">×</button>
+        <button class="btn" onclick="press('-')">-</button>
+        <button class="btn" onclick="press('7')">7</button>
+        <button class="btn" onclick="press('8')">8</button>
+        <button class="btn" onclick="press('9')">9</button>
+        <button class="btn" onclick="press('+')">+</button>
+        <button class="btn" onclick="press('1')">1</button>
+        <button class="btn" onclick="press('2')">2</button>
+        <button class="btn" onclick="press('3')">3</button>
+        <button class="btn btn-save" onclick="calculate()" style="grid-row:span 2">=</button>
+        <button class="btn" onclick="press('0')" style="grid-column:span 2">0</button>
+        <button class="btn" onclick="press('.')">.</button>
+    </div>
+</div>
+
+<!-- ENTRY -->
+<div id="entry-section" class="hidden">
+    <h3>📝 Sajili Mteja</h3>
+    <input type="hidden" id="editIndex">
+    <input id="mteja" placeholder="Jina la mteja">
+    <input id="namba" placeholder="Namba ya simu 07...">
+    <input id="kiasi" type="number" placeholder="Kiasi (Tsh)">
+    <button id="saveBtn" class="btn btn-save" onclick="saveData()">HIFADHI</button>
+    <button id="updateBtn" class="btn btn-update hidden" onclick="updateData()">UPDATE</button>
+</div>
+
+<!-- LIST -->
+<div id="list-section" class="hidden">
+    <table>
+        <thead>
+            <tr><th>Mteja</th><th>Kiasi</th><th>Ujumbe</th></tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+    </table>
+    <div class="total-box">JUMLA: <span id="jumlaKuu">0</span> Tsh</div>
+</div>
+
+<!-- BACKUP -->
+<div id="backup-section" class="hidden">
+    <input type="password" id="inputPin" placeholder="PIN (2007)">
+    <button class="btn btn-backup" onclick="unlockBackup()">FUNGUA</button>
+    <div id="backup-content" class="hidden">
+        <button class="btn btn-backup" onclick="generateBackup()">GET BACKUP</button>
+        <textarea id="backupCode" readonly></textarea>
+        <button class="btn" style="background:#ef4444" onclick="clearAllData()">FUTA DATA ZOTE</button>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+// ===== SETTINGS =====
+const SIRI = "MOSHARUTH";
+const PIN_BACKUP = "2007";
+const WIFI_NAME = "RUGI";
+const WIFI_PASSWORD = "goldnature44";
+
+// LOGIN
+function checkCode(){
+    if(secretCode.value === SIRI){
+        login-section.classList.add("hidden");
+        main-content.classList.remove("hidden");
+    }else alert("Password sio sahihi");
+}
+
+// TABS
+function showTab(t){
+    ["calc","entry","list","backup"].forEach(x=>{
+        document.getElementById(x+"-section").classList.add("hidden");
+    });
+    document.getElementById(t+"-section").classList.remove("hidden");
+    if(t==="list") showData();
+}
+
+// CALC
+let expr="";
+function press(v){expr+=v;display.value=expr}
+function clearCalc(){expr="";display.value=""}
+function calculate(){try{expr=eval(expr)+"";display.value=expr}catch{clearCalc()}}
+
+// DATA
+function saveData(){
+    if(!mteja.value||!namba.value||!kiasi.value) return alert("Jaza taarifa zote");
+    let d=JSON.parse(localStorage.getItem("wifiData"))||[];
+    d.push({mteja:mteja.value,namba:namba.value,kiasi:+kiasi.value,tarehe:new Date().toLocaleDateString()});
+    localStorage.setItem("wifiData",JSON.stringify(d));
+    mteja.value=namba.value=kiasi.value="";
+    showTab("list");
+}
+
+function showData(){
+    let d=JSON.parse(localStorage.getItem("wifiData"))||[];
+    let h="",t=0;
+    d.forEach((x,i)=>{
+        t+=x.kiasi;
+        h+=`<tr>
+        <td>${x.mteja}<br><small>${x.tarehe}</small></td>
+        <td>${x.kiasi.toLocaleString()}</td>
+        <td>
+            <button class="action-btn" onclick="sendSMS(${i})">📩</button>
+            <button class="action-btn" onclick="sendWA(${i})">🟢</button>
+        </td></tr>`;
+    });
+    dataBody.innerHTML=h;
+    jumlaKuu.innerText=t.toLocaleString();
+}
+
+// MESSAGE
+function createMsg(d){
+return `Habari ${d.mteja} 😊
+
+Asante kwa kuchagua *${WIFI_NAME} WiFi* 🌐
+
+Malipo yako ya *Tsh ${d.kiasi.toLocaleString()}* yamepokelewa.
+
+📶 WiFi: ${WIFI_NAME}
+🔑 Password: ${WIFI_PASSWORD}
+
+Furahia intaneti yenye kasi na uhakika.
+Karibu tena 🙏`;
+}
+
+// SMS
+function sendSMS(i){
+    let d=JSON.parse(localStorage.getItem("wifiData"))[i];
+    location.href=`sms:${d.namba}?body=${encodeURIComponent(createMsg(d))}`;
+}
+
+// WA
+function sendWA(i){
+    let d=JSON.parse(localStorage.getItem("wifiData"))[i];
+    let n=d.namba.startsWith("0")?"255"+d.namba.slice(1):d.namba;
+    window.open(`https://wa.me/${n}?text=${encodeURIComponent(createMsg(d))}`,"_blank");
+}
+
+// BACKUP
+function unlockBackup(){
+    if(inputPin.value===PIN_BACKUP) backup-content.classList.remove("hidden");
+}
+function generateBackup(){
+    backupCode.value=btoa(localStorage.getItem("wifiData")||"");
+}
+function clearAllData(){
+    if(confirm("Una uhakika?")){localStorage.removeItem("wifiData");location.reload()}
+}
+</script>
+</body>
+      </html>
