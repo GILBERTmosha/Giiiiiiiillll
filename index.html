@@ -4,91 +4,55 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MOSHARUTH WiFi</title>
-
 <style>
-body{
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#000,#222);
-    color:#fff;
-    margin:0;
-}
-.container{
-    max-width:430px;
-    margin:35px auto;
-    background:#050505;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 0 15px gold;
-}
-h2{
-    text-align:center;
-    color:gold;
-}
-input, textarea, button{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:none;
-    font-size:15px;
-}
-textarea{
-    resize:vertical;
-    min-height:120px;
-}
-button{
-    background:gold;
-    color:#000;
-    font-weight:bold;
-    cursor:pointer;
-}
+body{font-family:Arial,sans-serif;background:#0f172a;color:#fff;margin:0}
+.container{max-width:430px;margin:20px auto;background:#111;padding:20px;border-radius:12px;box-shadow:0 0 15px gold}
+h2{text-align:center;color:gold}
+input,textarea,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:15px}
+textarea{resize:vertical;min-height:120px}
+button{background:gold;color:#000;font-weight:bold;cursor:pointer}
 button:hover{background:orange}
 .hidden{display:none}
-.card{
-    background:#111;
-    padding:15px;
-    border-radius:10px;
-    margin-top:15px;
-}
-.small-btn{
-    margin-top:6px;
-    background:#333;
-    color:white;
-}
+.card{background:#222;padding:12px;border-radius:10px;margin-top:12px}
+.small-btn{margin-top:6px;background:#333;color:white}
+.flex{display:flex;gap:5px}
+.flex button{flex:1}
 </style>
 </head>
-
 <body>
 
 <!-- LOGIN -->
 <div class="container" id="loginBox">
-    <h2>🔐 LOGIN</h2>
-    <input type="password" id="password" placeholder="Ingiza password">
-    <button onclick="login()">Ingia</button>
+<h2>🔐 LOGIN</h2>
+<input type="password" id="password" placeholder="Ingiza password">
+<button onclick="login()">Ingia</button>
 </div>
 
 <!-- DASHBOARD -->
 <div class="container hidden" id="dashboard">
-    <h2>📡 MOSHARUTH WiFi</h2>
+<h2>📡 MOSHARUTH WiFi</h2>
 
-    <input id="jina" placeholder="Jina la mteja">
-    <input id="kiasi" type="number" placeholder="Kiasi (Tsh)">
-    <input id="namba" placeholder="Namba ya simu">
+<input id="jina" placeholder="Jina la mteja">
+<input id="kiasi" type="number" placeholder="Kiasi (Tsh)">
+<input id="namba" placeholder="Namba ya simu">
+<div class="flex">
     <button onclick="saveData()">💾 Hifadhi</button>
+    <button onclick="updateData()" id="updateBtn" class="hidden">✏️ Update</button>
+</div>
 
-    <button class="small-btn" onclick="backupData()">📥 Backup Data</button>
-    <input type="file" id="restoreFile" onchange="restoreData(event)">
+<button class="small-btn" onclick="backupData()">📥 Backup Data</button>
+<input type="file" id="restoreFile" onchange="restoreData(event)">
 
-    <div id="list"></div>
+<div id="list"></div>
 </div>
 
 <!-- MESSAGE EDIT -->
 <div class="container hidden" id="msgBox">
-    <h2>✏️ Hariri Ujumbe</h2>
-    <textarea id="msgText"></textarea>
-    <button onclick="sendWA()">📲 Tuma WhatsApp</button>
-    <button onclick="sendSMS()" class="small-btn">📩 Tuma SMS</button>
-    <button onclick="closeMsg()" class="small-btn">❌ Funga</button>
+<h2>✏️ Hariri Ujumbe</h2>
+<textarea id="msgText"></textarea>
+<button onclick="sendWA()">📲 Tuma WhatsApp</button>
+<button onclick="sendSMS()" class="small-btn">📩 Tuma SMS</button>
+<button onclick="closeMsg()" class="small-btn">❌ Funga</button>
 </div>
 
 <script>
@@ -119,11 +83,11 @@ function saveData(){
     let data = JSON.parse(localStorage.getItem("wifiData")) || [];
     data.push({jina:jina.value,kiasi:kiasi.value,namba:namba.value});
     localStorage.setItem("wifiData",JSON.stringify(data));
-    jina.value="";kiasi.value="";namba.value="";
+    resetForm();
     loadData();
 }
 
-// LOAD
+// LOAD DATA
 function loadData(){
     let data = JSON.parse(localStorage.getItem("wifiData")) || [];
     list.innerHTML="";
@@ -133,9 +97,40 @@ function loadData(){
             👤 <b>${d.jina}</b><br>
             💰 Tsh ${Number(d.kiasi).toLocaleString()}<br>
             📞 ${d.namba}<br><br>
-            <button onclick="editMsg(${i})">✏️ Ujumbe</button>
+            <div class="flex">
+                <button onclick="editData(${i})">✏️ Edit</button>
+                <button onclick="editMsg(${i})">💬 Message</button>
+            </div>
         </div>`;
     });
+}
+
+// EDIT DATA
+function editData(i){
+    let data = JSON.parse(localStorage.getItem("wifiData"));
+    let d = data[i];
+    jina.value=d.jina;
+    kiasi.value=d.kiasi;
+    namba.value=d.namba;
+    currentIndex = i;
+    updateBtn.classList.remove("hidden");
+}
+
+// UPDATE DATA
+function updateData(){
+    if(currentIndex===null) return;
+    let data = JSON.parse(localStorage.getItem("wifiData"));
+    data[currentIndex] = {jina:jina.value,kiasi:kiasi.value,namba:namba.value};
+    localStorage.setItem("wifiData",JSON.stringify(data));
+    resetForm();
+    loadData();
+}
+
+// RESET FORM
+function resetForm(){
+    jina.value="";kiasi.value="";namba.value="";
+    updateBtn.classList.add("hidden");
+    currentIndex=null;
 }
 
 // MESSAGE TEMPLATE
@@ -150,6 +145,11 @@ return `👋 Habari ${d.jina} 😊
 
 💳 Malipo yamethibitishwa ✅
 💰 Kiasi: Tsh ${Number(d.kiasi).toLocaleString()}
+    
+    📞 *Mawasiliano*
+☎️ Simu: 0793770731
+💬 WhatsApp: https://wa.me/255793770731
+
 
 🚀 Furahia intaneti bila mipaka
 🙏 Asante kwa kutuchagua 💚`;
@@ -177,9 +177,7 @@ function sendSMS(){
 }
 
 // CLOSE MESSAGE
-function closeMsg(){
-    msgBox.classList.add("hidden");
-}
+function closeMsg(){ msgBox.classList.add("hidden"); }
 
 // BACKUP
 function backupData(){
